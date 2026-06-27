@@ -122,8 +122,26 @@ const login = async (req, res) => {
             });
         }
 
+        const token = jwt.sign(
+            {
+                id: usuarioEncontrado.id
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: '24h'
+            }
+        );
+
         return res.status(200).json({
-            message: 'Login exitoso'
+            message: 'Login exitoso',
+            token,
+            usuario: {
+                id: usuarioEncontrado.id,
+                nombre: usuarioEncontrado.nombre,
+                apellido: usuarioEncontrado.apellido,
+                correo: usuarioEncontrado.correo,
+                telefono: usuarioEncontrado.telefono
+            }
         });
 
     } catch (error) {
