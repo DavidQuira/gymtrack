@@ -6,6 +6,7 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth.routes');
 const perfilRoutes = require('./routes/perfil.routes');
+const objetivosRoutes = require('./routes/objetivos.routes');
 const app = express();
 
 // Middlewares
@@ -15,6 +16,7 @@ app.use(express.json());
 //rutas 
 app.use('/auth', authRoutes);
 app.use('/perfil', perfilRoutes);
+app.use('/objetivos', objetivosRoutes);
 // Ruta de prueba
 app.get('/', (req, res) => {
     res.json({
