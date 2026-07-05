@@ -4,7 +4,8 @@ const verificarToken = require('../middlewares/auth.middleware');
 
 const {
     crearPerfil,
-    obtenerPerfil
+    obtenerPerfil,
+    actualizarPerfil
 } = require('../controllers/perfil.controller');
 
 
@@ -12,12 +13,20 @@ router.post(
     '/',
     verificarToken,
     crearPerfil
+    
 );
 
 router.get(
     '/',
     verificarToken,
     obtenerPerfil
+
+);
+
+router.put(
+    '/',
+    verificarToken,
+    actualizarPerfil
 );
 
 

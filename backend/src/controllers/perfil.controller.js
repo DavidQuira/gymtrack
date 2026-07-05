@@ -37,7 +37,8 @@ const crearPerfil = async (req, res) => {
 
         const nuevoPerfil = await pool.query(
             `
-    INSERT INTO perfiles_usuario (usuario_id,
+    INSERT INTO perfiles_usuario (
+         usuario_id,
          objetivo_id,
          experiencia,
          dias_disponibles,
@@ -111,7 +112,78 @@ const obtenerPerfil = async (req, res) => {
 }
 
 
+const actualizarPerfil = async (req, res) => {
+
+    const usuario_id = req.usuario.id;
+
+    try {
+
+        const {
+            objetivo_id,
+            experiencia,
+            dias_disponibles,
+            altura_cm,
+            edad,
+            sexo
+        } = req.body;
+
+        const perfilExistente = await pool.query(
+            `
+        SELECT id
+        FROM perfiles_usuario
+        WHERE usuario_id = $1
+        `,
+            [usuario_id]
+        );
+
+        if (perfilExistente.rows.length === 0) {
+            return res.status(404).json({
+                message: 'No se encontró un perfil para este usuario'
+            });
+        }
+
+        const perfilActualizado = await pool.query(
+            `
+        UPDATE perfiles_usuario 
+        SET
+            objetivo_id = $1,
+            experiencia = $2,
+            dias_disponibles = $3,
+            altura_cm = $4,
+            edad = $5,
+            sexo = $6
+        WHERE usuario_id = $7
+        RETURNING *
+        `,
+            [
+                objetivo_id,
+                experiencia,
+                dias_disponibles,
+                altura_cm,
+                edad,
+                sexo,
+                usuario_id
+            ]
+        );
+
+        return res.status(200).json({
+            message: 'Perfil actualizado correctamente',
+            perfil: perfilActualizado.rows[0]
+        });
+
+
+
+    } catch (error) {
+        console.error('Error al actualizar el perfil:', error);
+        return res.status(500).json({
+            message: 'Error al actualizar el perfil'
+        });
+    }
+}
+
 module.exports = {
     crearPerfil,
-    obtenerPerfil
+    obtenerPerfil,
+    actualizarPerfil
+
 };
