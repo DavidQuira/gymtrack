@@ -83,9 +83,13 @@ const obtenerPerfil = async (req, res) => {
     try {
         const perfil = await pool.query(
             `
-        SELECT *
+      SELECT
+       perfiles_usuario.*,
+        objetivos.nombre AS objetivo
         FROM perfiles_usuario
-        WHERE usuario_id = $1
+       INNER JOIN objetivos
+       ON perfiles_usuario.objetivo_id = objetivos.id
+       WHERE perfiles_usuario.usuario_id = $1
         `,
             [usuario_id]
         );
