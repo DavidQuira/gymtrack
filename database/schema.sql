@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS registros_fisicos (
 
 
 -- ==========================================
--- BLOQUE 2 — BIBLIOTECA GLOBAL DE EJERCICIOS Y PLANTILLAS
+-- BLOQUE 2 — BIBLIOTECA GLOBAL DE EJERCICIOS Y PLANTILLAS Y RUTINAS
 -- ==========================================
 
 -- Diccionario maestro de todos los ejercicios que se pueden realizar en la app

@@ -50,3 +50,23 @@ INSERT INTO plantillas_rutina (nombre, descripcion, dias) VALUES
 ('Torso Pierna', 'Rutina de alta frecuencia que alterna días enfocados en la musculatura del tronco (pecho, espalda, hombros) con días específicos para el desarrollo del tren inferior.', 4),
 ('Arnold Split', 'Distribución clásica enfocada en la estética que empareja pecho/espalda, hombros/brazos y piernas, permitiendo un alto volumen de trabajo para antagonistas.', 5),
 ('Bro Split', 'Rutina tradicional de culturismo que dedica una sesión exclusiva a un solo grupo muscular por día (ej. pecho, espalda, piernas, hombros, brazos) para una máxima congestión.', 5);
+
+
+-- ==========================================
+-- DÍAS DE LA PLANTILLA PUSH PULL LEGS
+-- ==========================================
+
+INSERT INTO dias_plantilla (plantilla_id, nombre, orden)
+SELECT id, 'Push', 1
+FROM plantillas_rutina
+WHERE nombre = 'Push Pull Legs';
+
+INSERT INTO dias_plantilla (plantilla_id, nombre, orden)
+SELECT id, 'Pull', 2
+FROM plantillas_rutina
+WHERE nombre = 'Push Pull Legs';
+
+INSERT INTO dias_plantilla (plantilla_id, nombre, orden)
+SELECT id, 'Legs', 3
+FROM plantillas_rutina
+WHERE nombre = 'Push Pull Legs';
