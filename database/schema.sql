@@ -109,14 +109,16 @@ CREATE TABLE IF NOT EXISTS ejercicios_plantilla (
 -- BLOQUE 3 — RUTINAS PERSONALIZADAS DEL USUARIO
 -- ==========================================
 
--- Cabecera de la rutina asignada a un usuario específico (puede clonarse de una plantilla)
+-- Cabecera de la rutina asignada al usuario, ya sea generada por IA o basada en una plantilla.
 CREATE TABLE IF NOT EXISTS rutinas_usuario (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
     plantilla_origen_id UUID REFERENCES plantillas_rutina(id),
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
+    explicacion_ia TEXT,
     activa BOOLEAN DEFAULT TRUE,
+    generada_por_ia BOOLEAN DEFAULT TRUE,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

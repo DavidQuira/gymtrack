@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth.routes');
 const perfilRoutes = require('./routes/perfil.routes');
 const objetivosRoutes = require('./routes/objetivos.routes');
 const plantillasRoutes = require('./routes/plantillas.routes');
+const iaRoutes = require('./routes/ia.routes');
 const app = express();
 
 // Middlewares
@@ -19,6 +20,7 @@ app.use('/auth', authRoutes);
 app.use('/perfil', perfilRoutes);
 app.use('/objetivos', objetivosRoutes);
 app.use('/plantillas', plantillasRoutes);
+app.use('/ia', iaRoutes);
 // Ruta de prueba
 app.get('/', (req, res) => {
     res.json({
