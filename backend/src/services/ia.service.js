@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const openRouter = require('../config/openrouter');
 
 const obtenerContextoIA = async (usuario_id) => {
     const perfil = await pool.query(
@@ -101,12 +102,25 @@ const generarRutinaIA = async (usuario_id) => {
     - Responde unicamente en formato JSON.
 
     `;
+    const response = await openRouter.post('/chat/completions', {
+        model: 'deepseek/deepseek-chat-v3-0324:free',
+        messages: [
+            {
+                role: 'user',
+                content: prompt
+            }
+        ]
+    });
+
+    const respuesta = response.data.choices[0].message.content;
+
 
     return {
-        prompt
+        respuesta
     };
 
 };
+
 
 module.exports = {
     generarRutinaIA,
