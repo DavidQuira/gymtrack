@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS perfiles_usuario (
     dias_disponibles INT NOT NULL CHECK (dias_disponibles BETWEEN 2 AND 6),
     altura_cm NUMERIC(5,2),
     edad INT CHECK (edad >= 13),
-    sexo VARCHAR(20),
+    sexo VARCHAR(20) CHECK (sexo IN ('Masculino', 'Femenino')),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS ejercicios (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nombre VARCHAR(100) NOT NULL UNIQUE,
     grupo_muscular VARCHAR(50) NOT NULL,
+    tipo VARCHAR(20) CHECK (tipo IN ('Compuesto', 'Aislamiento')),
     descripcion TEXT,
     nivel VARCHAR(30),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -77,7 +78,9 @@ CREATE TABLE IF NOT EXISTS plantillas_rutina (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nombre VARCHAR(100) NOT NULL UNIQUE,
     descripcion TEXT,
-    dias INT NOT NULL CHECK (dias BETWEEN 2 AND 6),
+    dias_min INT NOT NULL CHECK (dias_min BETWEEN 2 AND 6),
+    dias_max INT NOT NULL CHECK (dias_max BETWEEN 2 AND 6),
+    CHECK (dias_min <= dias_max),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -87,8 +90,10 @@ CREATE TABLE IF NOT EXISTS dias_plantilla (
     plantilla_id UUID NOT NULL
 	REFERENCES plantillas_rutina(id)
 	ON DELETE CASCADE,
-    nombre VARCHAR(100) NOT NULL UNIQUE,
+    nombre VARCHAR(100) NOT NULL,
     orden INT NOT NULL,
+    UNIQUE (plantilla_id, nombre),
+    UNIQUE (plantilla_id, orden),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -101,6 +106,7 @@ CREATE TABLE IF NOT EXISTS ejercicios_plantilla (
     reps_min INT,
     reps_max INT,
     orden INT NOT NULL,
+    UNIQUE (dia_plantilla_id, orden),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -128,6 +134,7 @@ CREATE TABLE IF NOT EXISTS dias_rutina_usuario (
     rutina_id UUID NOT NULL REFERENCES rutinas_usuario(id) ON DELETE CASCADE,
     nombre VARCHAR(100) NOT NULL,
     orden INT NOT NULL,
+    UNIQUE (rutina_id, orden),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -139,7 +146,9 @@ CREATE TABLE IF NOT EXISTS ejercicios_rutina_usuario (
     series INT NOT NULL,
     reps_min INT,
     reps_max INT,
+    descanso VARCHAR(30),
     orden INT NOT NULL,
+    UNIQUE (dia_rutina_id, orden),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
