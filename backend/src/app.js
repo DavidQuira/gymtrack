@@ -9,6 +9,7 @@ const perfilRoutes = require('./routes/perfil.routes');
 const objetivosRoutes = require('./routes/objetivos.routes');
 const plantillasRoutes = require('./routes/plantillas.routes');
 const iaRoutes = require('./routes/ia.routes');
+const rutinaRoutes = require('./routes/rutina.routes');
 const app = express();
 
 // Middlewares
@@ -21,6 +22,8 @@ app.use('/perfil', perfilRoutes);
 app.use('/objetivos', objetivosRoutes);
 app.use('/plantillas', plantillasRoutes);
 app.use('/ia', iaRoutes);
+app.use('/rutinas', rutinaRoutes);
+
 // Ruta de prueba
 app.get('/', (req, res) => {
     res.json({
