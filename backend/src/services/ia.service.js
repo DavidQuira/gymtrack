@@ -167,15 +167,15 @@ const generarRutinaIA = async (usuario_id) => {
     const response = await openRouter.post('/chat/completions', {
         "model": "deepseek/deepseek-chat",
         messages: [
-    {
-        role: 'system',
-        content: 'Eres un entrenador personal experto en entrenamiento de fuerza e hipertrofia. Responde únicamente con JSON válido siguiendo exactamente el formato solicitado.'
-    },
-    {
-        role: 'user',
-        content: prompt
-    }
-]
+            {
+                role: 'system',
+                content: 'Eres un entrenador personal experto en entrenamiento de fuerza e hipertrofia. Responde únicamente con JSON válido siguiendo exactamente el formato solicitado.'
+            },
+            {
+                role: 'user',
+                content: prompt
+            }
+        ]
     });
 
     const respuesta = response.data.choices[0].message.content;
@@ -189,13 +189,144 @@ const generarRutinaIA = async (usuario_id) => {
 
     const datos = JSON.parse(json);
 
+    await guardarRutinaIA(usuario_id, datos);
+
     return datos;
 
 };
 
+const guardarRutinaIA = async (usuario_id, rutinaIA) => {
+
+    const client = await pool.connect();
+
+    try {
+
+        await client.query("BEGIN");
+
+        // Buscar la plantilla utilizada por la IA
+        const plantilla = await client.query(
+            `
+            SELECT id
+            FROM plantillas_rutina
+            WHERE nombre = $1
+            `,
+            [rutinaIA.rutina.plantilla]
+        );
+
+        // Guardar la rutina
+        const rutinaGuardada = await client.query(
+            `
+            INSERT INTO rutinas_usuario
+            (
+                usuario_id,
+                plantilla_origen_id,
+                nombre,
+                descripcion,
+                generada_por_ia
+            )
+            VALUES ($1, $2, $3, $4, true)
+            RETURNING id
+            `,
+            [
+                usuario_id,
+                plantilla.rows[0].id,
+                rutinaIA.rutina.plantilla,
+                'Rutina generada por IA'
+            ]
+        );
+
+        const rutina_id = rutinaGuardada.rows[0].id;
+
+        // Recorrer los días
+        for (let i = 0; i < rutinaIA.rutina.dias.length; i++) {
+
+            const dia = rutinaIA.rutina.dias[i];
+
+            const diaGuardado = await client.query(
+                `
+                INSERT INTO dias_rutina_usuario
+                (
+                    rutina_id,
+                    nombre,
+                    orden
+                )
+                VALUES ($1, $2, $3)
+                RETURNING id
+                `,
+                [
+                    rutina_id,
+                    dia.dia,
+                    i + 1
+                ]
+            );
+
+            const dia_rutina_id = diaGuardado.rows[0].id;
+
+            // Recorrer ejercicios del día
+            for (let j = 0; j < dia.ejercicios.length; j++) {
+
+                const ejercicio = dia.ejercicios[j];
+
+                const ejercicioDB = await client.query(
+                    `
+                    SELECT id
+                    FROM ejercicios
+                    WHERE nombre = $1
+                    `,
+                    [ejercicio.nombre]
+                );
+
+                if (ejercicioDB.rows.length === 0) {
+                    throw new Error(`No existe el ejercicio: ${ejercicio.nombre}`);
+                }
+
+                await client.query(
+                    `
+                    INSERT INTO ejercicios_rutina_usuario
+                    (
+                        dia_rutina_id,
+                        ejercicio_id,
+                        series,
+                        reps_min,
+                        reps_max,
+                        descanso,
+                        orden
+                    )
+                    VALUES ($1,$2,$3,$4,$5,$6,$7)
+                    `,
+                    [
+                        dia_rutina_id,
+                        ejercicioDB.rows[0].id,
+                        ejercicio.series,
+                        ejercicio.reps_min,
+                        ejercicio.reps_max,
+                        ejercicio.descanso,
+                        j + 1
+                    ]
+                );
+            }
+        }
+
+        await client.query("COMMIT");
+
+        return rutina_id;
+
+    } catch (error) {
+
+        await client.query("ROLLBACK");
+        throw error;
+
+    } finally {
+
+        client.release();
+
+    }
+
+};
 
 module.exports = {
     generarRutinaIA,
-    obtenerContextoIA
-
+    obtenerContextoIA,
+    guardarRutinaIA
 };
+
